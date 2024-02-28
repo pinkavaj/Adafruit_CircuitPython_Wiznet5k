@@ -144,10 +144,11 @@ def inet_ntoa(ip_address: Union[bytes, bytearray]) -> str:
         raise ValueError("The IPv4 address must be 4 bytes.")
     return _the_interface.pretty_ip(ip_address)
 
+SOCK_STREAM = 1
+SOCK_DGRAM = 2
 
-SOCK_STREAM = const(0x21)  # TCP
-_TCP_MODE = 80
-SOCK_DGRAM = const(0x02)  # UDP
+circuitpython_type_to_wiznet_type = b'\0\x21\2'
+
 AF_INET = const(3)
 _SOCKET_INVALID = const(255)
 
@@ -431,7 +432,7 @@ class socket:
             self._socknum,
             _the_interface.unpretty_ip(gethostbyname(address[0])),
             address[1],
-            self._sock_type,
+            circuitpython_type_to_wiznet_type[self._sock_type],
         )
         _the_interface.src_port = 0
         if not result:
@@ -674,7 +675,7 @@ class socket:
 
         :return int: Number of bytes available.
         """
-        return _the_interface.socket_available(self._socknum, self._sock_type)
+        return _the_interface.socket_available(self._socknum, circuitpython_type_to_wiznet_type[self._sock_type])
 
     @_check_socket_closed
     def settimeout(self, value: Optional[float]) -> None:
